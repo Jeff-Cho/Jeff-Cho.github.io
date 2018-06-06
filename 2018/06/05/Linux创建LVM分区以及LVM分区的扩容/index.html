@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html class="full-height">
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="//cdn.bootcss.com/bulma/0.4.1/css/bulma.min.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  <script src="//cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+  
+  <title>『Linux创建LVM分区以及LVM分区的扩容』 | Jeff-Cho&#39;s Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="一、LVM分区的基本概念&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;LVM利用Linux内核的device-mapper来实现存储系统的虚拟化（系统分区独立于底层硬件）。通过LVM，你可以实现存储空间的抽象化并在上面建立虚拟分区，可以更简便地扩大和缩小分区，可以增删分区时无需担心某个硬盘上没有足够的连续空间。&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;">
+<meta name="keywords" content="Linux,运维">
+<meta property="og:type" content="article">
+<meta property="og:title" content="『Linux创建LVM分区以及LVM分区的扩容』">
+<meta property="og:url" content="http://yoursite.com/2018/06/05/Linux创建LVM分区以及LVM分区的扩容/index.html">
+<meta property="og:site_name" content="Jeff-Cho&#39;s Blog">
+<meta property="og:description" content="一、LVM分区的基本概念&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;LVM利用Linux内核的device-mapper来实现存储系统的虚拟化（系统分区独立于底层硬件）。通过LVM，你可以实现存储空间的抽象化并在上面建立虚拟分区，可以更简便地扩大和缩小分区，可以增删分区时无需担心某个硬盘上没有足够的连续空间。&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2018-06-06T09:20:19.214Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="『Linux创建LVM分区以及LVM分区的扩容』">
+<meta name="twitter:description" content="一、LVM分区的基本概念&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;LVM利用Linux内核的device-mapper来实现存储系统的虚拟化（系统分区独立于底层硬件）。通过LVM，你可以实现存储空间的抽象化并在上面建立虚拟分区，可以更简便地扩大和缩小分区，可以增删分区时无需担心某个硬盘上没有足够的连续空间。&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;">
+  
+    <link rel="alternate" href="/atom.xml" title="Jeff-Cho&#39;s Blog" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/common.css">
+<link rel="stylesheet" href="/css/nav.css">
+<link rel="stylesheet" href="/css/layout.css">
+  
+
+</head>
+
+<body>
+  <header id="navbar" class="overflow-hidden">
+  <div class="container">
+    <nav class="nav">
+         <div class="nav-left">
+            <a href="/" class="nav-item" style="font-size: 20px;">
+              <span class="logo">Jeff-Cho</span>'s Blog
+            </a>
+         </div>
+        <div class="nav-center is-hidden position-relative" id="search_container">
+            <div class="nav-item full-width full-height">
+                <i class="fa fa-search has-padding" aria-hidden="true"></i>
+                <input type="text" id="search_input" class="search-input full-height full-width" placeholder="Search post" autofocus>
+                <i id="close_search" class="fa fa-times" aria-hidden="true"></i>
+            </div>
+            <div id="search_result"></div>
+        </div>
+        <div class="nav-right nav-menu">
+            <a class="nav-item" id="search">
+                <i class="fa fa-search" aria-hidden="true"></i>
+            </a>
+            
+            <a class="nav-item" href="/">
+                首页
+            </a>
+            
+            <a class="nav-item" href="/archive">
+                归档
+            </a>
+            
+            <a class="nav-item" href="/about">
+                关于
+            </a>
+            
+        </div>
+        <span class="nav-toggle" id="navMenuDropdown">
+            <span></span>
+            <span></span>
+            <span></span>
+        </span>
+        <div class="navbar-menu position-absolute full-width content-box is-hidden-desktop is-flex flex-column center" style="top: 100%;">
+            
+            <a class="nav-item flex-1" href="/">
+                首页
+            </a>
+            
+            <a class="nav-item flex-1" href="/archive">
+                归档
+            </a>
+            
+            <a class="nav-item flex-1" href="/about">
+                关于
+            </a>
+            
+        </div>
+    </nav>
+  </div>
+</header>
+
+  <div id="main-wrap" class="position-relative" style="margin-top: 55px;">
+      <div class="main-inner-content">
+          <!--博文页面-->
+
+<style>
+    .header-box {
+        height: 370px;
+        filter: blur(10px);
+        background-size: cover;
+        background-color: lightsteelblue;
+    }
+
+    .post-box {
+        padding: 15px;
+        padding-top: 60px;
+        min-height: 80vh;
+        margin-top: -200px;
+        border-radius: 4px;
+        background-color: rgba(255,255,255,.8);
+    }
+
+    .post-avatar {
+        height: 30px;
+        width: 30px;
+        border-radius: 50%;
+    }
+
+    .flow-chart {
+        text-align: center;
+    }
+
+    img[alt="post-cover"] {
+        display: none;
+    }
+</style>
+<header>
+    <div id="header_box" class="header-box"></div>
+</header>
+<section>
+    <div class="container post-box">
+        <div class="content post-title is-flex center flex-column" style="margin-bottom: 70px; overflow: auto;">
+            <h1 class="has-text-centered" style="padding-bottom: 10px; border-bottom: 3px solid #fff">
+                <strong>『Linux创建LVM分区以及LVM分区的扩容』</strong>
+            </h1>
+            
+            <div class="is-flex align-center">
+                <img class="post-avatar" src="https://cdn2.iconfinder.com/data/icons/rcons-user/32/male-shadow-circle-512.png">
+                <span style="padding:0 10px;"> <span class="sub-title">By</span> Jeff-Cho</span>
+                <span class="post-date sub-title">at: 2018-06-05</span>
+            </div>
+            
+                <div>
+                    
+                         <a class="tag is-post-tag" href="/tags/Linux/">Linux</a>
+                    
+                         <a class="tag is-post-tag" href="/tags/运维/">运维</a>
+                    
+                </div>
+            
+        </div>
+        <div class="content" style="overflow: auto">
+            <h2 id="一、LVM分区的基本概念"><a href="#一、LVM分区的基本概念" class="headerlink" title="一、LVM分区的基本概念"></a>一、LVM分区的基本概念</h2><p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LVM利用Linux内核的device-mapper来实现存储系统的虚拟化（系统分区独立于底层硬件）。通过LVM，你可以实现存储空间的抽象化并在上面建立虚拟分区，可以更简便地扩大和缩小分区，可以增删分区时无需担心某个硬盘上没有足够的连续空间。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;简单来说：LVM是Linux环境中对磁盘分区进行管理的一种机制，是建立在硬盘和分区之上、文件系统之下的一个逻辑层，可提高磁盘分区管理的灵活性。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LVM的基本组成块如下：<br>  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;● 物理卷Physical volume (PV)：可以在上面建立卷组的媒介，可以是硬盘分区，也可以是硬盘本身或者回环文件（loopback file）。物理卷包括一个特殊的header，其余部分被切割为一块块物理区域（physical extents）。<br>  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;● 卷组Volume group (VG)：将一组物理卷收集为一个管理单元。<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ● 逻辑卷Logical volume (LV)：虚拟分区，由物理区域（physical extents）组成。</p>
+<h2 id="二、Linux创建LVM分区"><a href="#二、Linux创建LVM分区" class="headerlink" title="二、Linux创建LVM分区"></a>二、Linux创建LVM分区</h2><p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Linux中磁盘管理相对于windows灵活性较低，而随着Linux服务器数据盘的使用率日渐增长，对Linux的分区扩容就不可避免了。所以，将Linux服务器的数据盘以LVM分区的形式创建，就可以灵活解决Linux服务器数据盘扩容困难的窘境。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;环境：VMware workstation、centos6.5.<br>1.首先为虚拟机添加一块硬盘。<br>重启操作系统后，fdisk -l可以看到这块硬盘的分区编号是/dev/sdb<br>2.为磁盘/dev/sdb创建逻辑分区。<br><code>fdisk /dev/sdb</code><br><code>n</code><br><code>p</code><br><code>1</code><br><code>回车</code><br><code>回车</code><br>3.再将其转化成LVM分区（代码：8e）。<br><code>t</code><br><code>8e</code><br>4.保存设置好的分区。<br><code>w</code><br>5.创建物理卷physical volume（PV）。<br><code>pcreate /dev/sdb1</code><br>可以使用pvdisplay命令来查看当前所有的physical volume。<br>6.创建卷组volume group（VG）。<br><code>vgcreate data /dev/sdb1</code><br>可以使用vgdisplay来查看当前所有的volume group。<br>7.激活该卷组。<br><code>vgchange -ay data</code><br>8.创建logical volume（LV）。<br>命令参数解析：<br>lvcreate -L：指定逻辑卷大小，单位为K、M、G等，后面跟具体大小<br>lvcreate -l：指定逻辑卷大小，单位PE数，后面跟PE数量，PE是最小存储单元。<br>-n：指定创建的逻辑卷的名称。<br><code>lvcreate -l 766 -n mydata data</code><br>使用lvdisplay可以查看当前所有的逻辑卷。<br>9.格式化逻辑卷。<br><code>mkfs.ext4 /dev/data/mydata</code><br>10.挂载逻辑卷到指定目录。<br><code>mount /dev/data/mydata /data</code><br>修改/etc/fstab使分区永久生效。<br>在/etc/fatab中添加如下条目<br><code>/dev/data/mydata  /data   ext4   defaults   0 0</code><br>LVM分区至此创建完毕。</p>
+<h2 id="三、Linux的LVM分区扩容"><a href="#三、Linux的LVM分区扩容" class="headerlink" title="三、Linux的LVM分区扩容"></a>三、Linux的LVM分区扩容</h2><p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;接着上节，对该LVM分区进行扩容。<br>1.首先将虚拟机的硬盘扩容到5G，使用fdisk -l可以看到/dev/sdc已经扩容到了5G大小。<br>2.对硬盘/dev/sdc的剩余未使用空间创建逻辑分区。<br><code>fdisk /dev/sdb</code><br><code>n</code><br><code>p</code><br><code>2</code><br><code>回车</code><br><code>回车</code><br>3.同样，将新创建的逻辑分区转化成LVM分区，并保存。<br><code>t</code><br><code>8e</code><br><code>w</code><br>4.重启操作系统后，为新创建的逻辑分区/dev/sdb2创建物理卷（PV）。<br><code>pvcreate /dev/sdb2</code><br>使用pvdisplay可以看到当前所有的物理卷。<br>5.将新创建的物理卷加入卷组（VG）。<br><code>vgextend data /dev/sdb2</code><br>使用vgdisplay可以看到当前所有的卷组。标红的是该卷组的未分配容量，就是刚才新增的2GB。<br>6.将/dev/sdc2加入逻辑卷mydatastore。<br><code>lvextend /dev/data/mydata /dev/sdb2</code><br>7.对逻辑卷mydatastore（对应的path是/dev/datastore/mydatastore）扩容。<br><code>resize2fs /dev/data/mydata</code><br>8.这时使用df -lh命令可以看到分区已经扩容成功。<br>对LVM分区扩容至此完毕。</p>
+
+        </div>
+        <div class="post-reply">
+            
+                <!-- 来必力City版安装代码 -->
+                <div id="lv-container" data-id="city" data-uid="MTAyMC8yOTE4Ni81NzUz">
+                    <script type="text/javascript">
+                        (function(d, s) {
+                            var j, e = d.getElementsByTagName(s)[0];
+
+                            if (typeof LivereTower === 'function') { return; }
+
+                            j = d.createElement(s);
+                            j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+                            j.async = true;
+
+                            e.parentNode.insertBefore(j, e);
+                        })(document, 'script');
+                    </script>
+                    <noscript> 为正常使用来必力评论功能请激活JavaScript</noscript>
+                </div>
+                <!-- City版安装代码已完成 -->
+            
+            
+        </div>
+    </div>
+</section>
+<script>
+    // 获取第一张图, 用以当封面背景图
+    var img = document.querySelectorAll('img')[1]
+
+    if (img) {
+        var header_box = document.querySelector('#header_box')
+        header_box.style.backgroundImage = 'url('+ img.src +')'
+    }
+</script>
+      </div>
+  </div>
+  <style>
+  #footer {
+    min-height: 10vh;
+    background: black;
+    color: #fff;
+  }
+
+  #footer a {
+    color: #e1e1e1;
+  }
+</style>
+<footer id="footer" class="has-text-centered is-flex center">
+  <div class="container has-padding">
+    <div>
+      <div>
+        <!--请您保留作者署名, 主题制作来之不易-->
+        Theme by <a href="http://haojen.github.io/">Haojen Ma</a>
+        <br>
+        Copyright © Jeff-Cho 2018
+        <br>
+        Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="/js/search_core.js"></script>
+<script src="/js/script.js"></script>
+
+</body>
+</html>
