@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html class="full-height">
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="//cdn.bootcss.com/bulma/0.4.1/css/bulma.min.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  <script src="//cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+  
+  <title>『SAN交换机zone的划分』 | Jeff-Cho&#39;s Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="一、什么是SAN交换机zone以及为什么要给SAN交换机划zone？&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;超融合领域的发展已经较为成熟，共享存储的方案在数据中心的实施建设中也必然会采用，以实现提高管理效率以及降低实施以及运维成本。共享存储将存储从服务器中独立出来，再辅以合适的存储策略，可以实现数据的灾备，提高存储系统的可靠性、灵活性以及易管理性。由于将所有计算节点">
+<meta name="keywords" content="存储,SAN交换机">
+<meta property="og:type" content="article">
+<meta property="og:title" content="『SAN交换机zone的划分』">
+<meta property="og:url" content="http://yoursite.com/2018/06/08/SAN交换机zone的划分/index.html">
+<meta property="og:site_name" content="Jeff-Cho&#39;s Blog">
+<meta property="og:description" content="一、什么是SAN交换机zone以及为什么要给SAN交换机划zone？&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;超融合领域的发展已经较为成熟，共享存储的方案在数据中心的实施建设中也必然会采用，以实现提高管理效率以及降低实施以及运维成本。共享存储将存储从服务器中独立出来，再辅以合适的存储策略，可以实现数据的灾备，提高存储系统的可靠性、灵活性以及易管理性。由于将所有计算节点">
+<meta property="og:locale" content="chinese">
+<meta property="og:updated_time" content="2018-06-08T07:28:55.999Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="『SAN交换机zone的划分』">
+<meta name="twitter:description" content="一、什么是SAN交换机zone以及为什么要给SAN交换机划zone？&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;超融合领域的发展已经较为成熟，共享存储的方案在数据中心的实施建设中也必然会采用，以实现提高管理效率以及降低实施以及运维成本。共享存储将存储从服务器中独立出来，再辅以合适的存储策略，可以实现数据的灾备，提高存储系统的可靠性、灵活性以及易管理性。由于将所有计算节点">
+  
+    <link rel="alternate" href="/atom.xml" title="Jeff-Cho&#39;s Blog" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/common.css">
+<link rel="stylesheet" href="/css/nav.css">
+<link rel="stylesheet" href="/css/layout.css">
+  
+
+</head>
+
+<body>
+  <header id="navbar" class="overflow-hidden">
+  <div class="container">
+    <nav class="nav">
+         <div class="nav-left">
+            <a href="/" class="nav-item" style="font-size: 20px;">
+              <span class="logo">Jeff-Cho</span>'s Blog
+            </a>
+         </div>
+        <div class="nav-center is-hidden position-relative" id="search_container">
+            <div class="nav-item full-width full-height">
+                <i class="fa fa-search has-padding" aria-hidden="true"></i>
+                <input type="text" id="search_input" class="search-input full-height full-width" placeholder="Search post" autofocus>
+                <i id="close_search" class="fa fa-times" aria-hidden="true"></i>
+            </div>
+            <div id="search_result"></div>
+        </div>
+        <div class="nav-right nav-menu">
+            <a class="nav-item" id="search">
+                <i class="fa fa-search" aria-hidden="true"></i>
+            </a>
+            
+            <a class="nav-item" href="/">
+                首页
+            </a>
+            
+            <a class="nav-item" href="/archive">
+                归档
+            </a>
+            
+            <a class="nav-item" href="/about">
+                关于
+            </a>
+            
+        </div>
+        <span class="nav-toggle" id="navMenuDropdown">
+            <span></span>
+            <span></span>
+            <span></span>
+        </span>
+        <div class="navbar-menu position-absolute full-width content-box is-hidden-desktop is-flex flex-column center" style="top: 100%;">
+            
+            <a class="nav-item flex-1" href="/">
+                首页
+            </a>
+            
+            <a class="nav-item flex-1" href="/archive">
+                归档
+            </a>
+            
+            <a class="nav-item flex-1" href="/about">
+                关于
+            </a>
+            
+        </div>
+    </nav>
+  </div>
+</header>
+
+  <div id="main-wrap" class="position-relative" style="margin-top: 55px;">
+      <div class="main-inner-content">
+          <!--博文页面-->
+
+<style>
+    .header-box {
+        height: 370px;
+        filter: blur(10px);
+        background-size: cover;
+        background-color: lightsteelblue;
+    }
+
+    .post-box {
+        padding: 15px;
+        padding-top: 60px;
+        min-height: 80vh;
+        margin-top: -200px;
+        border-radius: 4px;
+        background-color: rgba(255,255,255,.8);
+    }
+
+    .post-avatar {
+        height: 30px;
+        width: 30px;
+        border-radius: 50%;
+    }
+
+    .flow-chart {
+        text-align: center;
+    }
+
+    img[alt="post-cover"] {
+        display: none;
+    }
+</style>
+<header>
+    <div id="header_box" class="header-box"></div>
+</header>
+<section>
+    <div class="container post-box">
+        <div class="content post-title is-flex center flex-column" style="margin-bottom: 70px; overflow: auto;">
+            <h1 class="has-text-centered" style="padding-bottom: 10px; border-bottom: 3px solid #fff">
+                <strong>『SAN交换机zone的划分』</strong>
+            </h1>
+            
+            <div class="is-flex align-center">
+                <img class="post-avatar" src="https://cdn2.iconfinder.com/data/icons/rcons-user/32/male-shadow-circle-512.png">
+                <span style="padding:0 10px;"> <span class="sub-title">By</span> Jeff-Cho</span>
+                <span class="post-date sub-title">at: 06-08-2018</span>
+            </div>
+            
+                <div>
+                    
+                         <a class="tag is-post-tag" href="/tags/存储/">存储</a>
+                    
+                         <a class="tag is-post-tag" href="/tags/SAN交换机/">SAN交换机</a>
+                    
+                </div>
+            
+        </div>
+        <div class="content" style="overflow: auto">
+            <h2 id="一、什么是SAN交换机zone以及为什么要给SAN交换机划zone？"><a href="#一、什么是SAN交换机zone以及为什么要给SAN交换机划zone？" class="headerlink" title="一、什么是SAN交换机zone以及为什么要给SAN交换机划zone？"></a>一、什么是SAN交换机zone以及为什么要给SAN交换机划zone？</h2><p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;超融合领域的发展已经较为成熟，共享存储的方案在数据中心的实施建设中也必然会采用，以实现提高管理效率以及降低实施以及运维成本。共享存储将存储从服务器中独立出来，再辅以合适的存储策略，可以实现数据的灾备，提高存储系统的可靠性、灵活性以及易管理性。由于将所有计算节点的存储抽离并进行超融合，这会带来数据隔离的挑战。SAN作为共享存储的一种，如何进行数据隔离也是SAN需要面对的问题。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;给SAN交换机划分zone较好的解决了这个问题。类似于网络中VLAN的概念，zone将连接在SAN网络中的存储以及HBA卡划分成不同区域，以隔离SAN网络中不同存储区域间的互访。</p>
+<h2 id="二、给SAN交换机划分zone的方法"><a href="#二、给SAN交换机划分zone的方法" class="headerlink" title="二、给SAN交换机划分zone的方法"></a>二、给SAN交换机划分zone的方法</h2><p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;在项目实施中，Brocade SAN交换机是比较常见的品牌了，作为SAN交换机厂商中的佼佼者，它的交互逻辑以及配置流程也被其他厂商效仿，所以本文中将以Brocade为例。首先我们先来了解几个概念:</p>
+<ul>
+<li>HBA卡：Host Bus Adapter，是服务器内部的I/O通道与存储系统的I/O通道之间的物理连接，是一个在服务器和存储之间提供I/O处理和物理连接的电路板和/或集成电路适配器。</li>
+<li>WWN：World Wide Name，用于唯一标识存储网络的连接，每个HBA卡都有自己唯一的WWN号。</li>
+</ul>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;给SAN交换机划分zone有两种规划方式：</p>
+<ul>
+<li>基于port划分，即基于连接到SAN交换机上的端口来划分zone，这种称为<strong>Hardware zoning</strong>。</li>
+<li>基于WWN划分，即基于主机的HBA卡和存储的控制器的WWN号来划分zone，这种称为<strong>Software zoning</strong>。</li>
+</ul>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;配置SAN交换机有以下几种方式：</p>
+<ul>
+<li>WEB界面：这种管理方式需要JAVA环境作为支撑，图形化界面配置起来很简单，但由于环境要求较为苛刻。</li>
+<li>console：通过console口配置是比较常见的配置方式，需要了解命令，有一定门槛。</li>
+<li>通过管理口telnet：telnet SAN交换机的管理地址，然后使用命令配置。之所以提到这种‘非常规’配置方式，是因为之前在项目实施的过程中先后遇到JAVA环境不满足和CRT无法操作的问题，后来通过telnet管理口成功配置交换机。</li>
+</ul>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;由于WWN号冗长难记，所以使用WWN配置起来会很麻烦，而且当更换主机或者存储的HBA卡的时候，zone也要重新配置。所以通过采用基于SAN交换机端口的方式划分zone，只要连接到SAN交换机的端口不变，zone配置将永久有效。本文将详细讲解下CLI配置SAN交换机基于Port划分zone。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;在配置之前，需要先规划好SAN交换机的哪些端口要连接主机HBA卡，哪些端口要连接存储控制器。一个zone的成员之间可以互访，但是不同zone之间数据隔离。<br>1.创建zone<br>命令格式：<code>zonecreate &quot;zone_name&quot;,&quot;domain_id,port&quot;;&quot;domain_id,port&quot;...</code><br>示例：目前有一台SAN交换机的0、1、2、3口依次连接到两台服务器的四块HBA卡，SAN交换机的5和6口连接到共享存储的两个控制器。需求是将两台服务器分别和存储的两个控制器划zone，实现数据隔离的同时实现冗余架构。<br><code>zonecreate &quot;zone_1&quot;,&quot;1,0&quot;;&quot;1,1&quot;;&quot;1,4&quot;;&quot;1,5&quot;;</code><br><code>zonecreate &quot;zone_2&quot;,&quot;1,2&quot;;&quot;1,3&quot;;&quot;1,4&quot;;&quot;1,5&quot;;</code><br><strong>补充：</strong><br>SAN交换机的domian_id默认是1，在级联之前，另外一台SAN交换机需要改成其他值。<br>交换机级联成功，端口状态会变成E-Port，主交换机会标有”UPstream”，从交换机会标有”downstream”。<br>向已有的zone中添加成员：<code>zoneadd &quot;zone_name&quot;,&quot;domain_id,port&quot;;</code><br>一个端口可以从属于多个zone。<br>建议每个zone中只配置一台主机，以防止不同的主机争夺磁盘的控制权<br>2.创建zoneconfig<br>命令格式：<code>cfgcreate &quot;zoneconfig_name&quot;,&quot;zone_name;zone_name...&quot;</code><br>示例：接着上例。<br><code>cfgcreate &quot;zoneconfig&quot;,&quot;zone_1;zone_2&quot;</code><br><strong>补充：</strong><br>往已有的zoneconfig中添加成员：<code>cfgadd &quot;zoneconfig_name&quot;,&quot;zone_name;zone_name...&quot;</code><br>3.保存并激活配置<br>命令格式：<code>cfgsave（会提示是否保存，输入&quot;y&quot;保存）</code><br>　　　　　<code>cfgenable &quot;zoneconfig_name&quot;</code><br>示例：接着上例。<br><code>cfgsave（输入&quot;y&quot;）</code><br><code>cfgenable &quot;zoneconfig&quot;</code><br><strong>补充：</strong><br>每台SAN交换机只能有一个cfg文件处于激活状态。</p>
+<h2 id="三、SAN交换机命令扩展"><a href="#三、SAN交换机命令扩展" class="headerlink" title="三、SAN交换机命令扩展"></a>三、SAN交换机命令扩展</h2><p>查看配置：<code>cfgshow或者zoneshow</code><br>查看管理IP地址（默认10.77.77.77）：<code>Ipaddrshow</code><br>查看OS版本：<code>version</code><br>查看授权：<code>licenseshow</code><br>添加授权：<code>licenseadd license_number</code><br>修改密码：<code>passwd</code><br>查看交换机状态：<code>switchshow</code></p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://blog.csdn.net/haiross/article/details/38561237" target="_blank" rel="noopener">https://blog.csdn.net/haiross/article/details/38561237</a><br><a href="https://blog.csdn.net/hzhvv/article/details51735257" target="_blank" rel="noopener">https://blog.csdn.net/hzhvv/article/details51735257</a><br>如有不严谨的地方，欢迎指出。</p>
+
+        </div>
+        <div class="post-reply">
+            
+                <!-- 来必力City版安装代码 -->
+                <div id="lv-container" data-id="city" data-uid="MTAyMC8yOTE4Ni81NzUz">
+                    <script type="text/javascript">
+                        (function(d, s) {
+                            var j, e = d.getElementsByTagName(s)[0];
+
+                            if (typeof LivereTower === 'function') { return; }
+
+                            j = d.createElement(s);
+                            j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+                            j.async = true;
+
+                            e.parentNode.insertBefore(j, e);
+                        })(document, 'script');
+                    </script>
+                    <noscript> 为正常使用来必力评论功能请激活JavaScript</noscript>
+                </div>
+                <!-- City版安装代码已完成 -->
+            
+            
+        </div>
+    </div>
+</section>
+<script>
+    // 获取第一张图, 用以当封面背景图
+    var img = document.querySelectorAll('img')[1]
+
+    if (img) {
+        var header_box = document.querySelector('#header_box')
+        header_box.style.backgroundImage = 'url('+ img.src +')'
+    }
+</script>
+      </div>
+  </div>
+  <style>
+  #footer {
+    min-height: 10vh;
+    background: black;
+    color: red;
+  }
+
+  #footer a {
+    color: #e1e1e1;
+  }
+</style>
+<footer id="footer" class="has-text-centered is-flex center">
+  <div class="container has-padding">
+    <div>
+      <div>
+        Copyright © 2018 Jeff-Cho's Blog All Rights Reserved.
+        <br>
+        <!--请您保留作者署名, 主题制作来之不易-->
+        Theme by <a href="http://haojen.github.io/">Haojen Ma</a>
+        <br>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="/js/search_core.js"></script>
+<script src="/js/script.js"></script>
+
+</body>
+</html>
