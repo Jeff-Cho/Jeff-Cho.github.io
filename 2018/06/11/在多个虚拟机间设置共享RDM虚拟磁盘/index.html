@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html class="full-height">
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="//cdn.bootcss.com/bulma/0.4.1/css/bulma.min.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  <script src="//cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+  
+  <title>『在多个VMware虚拟机间设置共享RDM虚拟磁盘』 | Jeff-Cho&#39;s Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="一、使用场景　　VMware可以通过RDM（裸设备映射）的方式让虚拟机之间访问物理存储。通过裸设备映射，VMware虚拟机可以使用大型存储设备，如磁盘阵列。访问RDM磁盘上的数据比访问完全虚拟化的vmdk磁盘要快。RDM磁盘可以从本地挂接到ESXi server，也可以在光纤通道SAN上配置。　　对于使用NetBackup的环境，这里有两点须知：（摘录自VERITAS SUPPORT）  NetB">
+<meta name="keywords" content="共享RDM,VMware">
+<meta property="og:type" content="article">
+<meta property="og:title" content="『在多个VMware虚拟机间设置共享RDM虚拟磁盘』">
+<meta property="og:url" content="http://yoursite.com/2018/06/11/在多个虚拟机间设置共享RDM虚拟磁盘/index.html">
+<meta property="og:site_name" content="Jeff-Cho&#39;s Blog">
+<meta property="og:description" content="一、使用场景　　VMware可以通过RDM（裸设备映射）的方式让虚拟机之间访问物理存储。通过裸设备映射，VMware虚拟机可以使用大型存储设备，如磁盘阵列。访问RDM磁盘上的数据比访问完全虚拟化的vmdk磁盘要快。RDM磁盘可以从本地挂接到ESXi server，也可以在光纤通道SAN上配置。　　对于使用NetBackup的环境，这里有两点须知：（摘录自VERITAS SUPPORT）  NetB">
+<meta property="og:locale" content="chinese">
+<meta property="og:updated_time" content="2018-06-11T06:38:43.099Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="『在多个VMware虚拟机间设置共享RDM虚拟磁盘』">
+<meta name="twitter:description" content="一、使用场景　　VMware可以通过RDM（裸设备映射）的方式让虚拟机之间访问物理存储。通过裸设备映射，VMware虚拟机可以使用大型存储设备，如磁盘阵列。访问RDM磁盘上的数据比访问完全虚拟化的vmdk磁盘要快。RDM磁盘可以从本地挂接到ESXi server，也可以在光纤通道SAN上配置。　　对于使用NetBackup的环境，这里有两点须知：（摘录自VERITAS SUPPORT）  NetB">
+  
+    <link rel="alternate" href="/atom.xml" title="Jeff-Cho&#39;s Blog" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/common.css">
+<link rel="stylesheet" href="/css/nav.css">
+<link rel="stylesheet" href="/css/layout.css">
+  
+
+</head>
+
+<body>
+  <header id="navbar" class="overflow-hidden">
+  <div class="container">
+    <nav class="nav">
+         <div class="nav-left">
+            <a href="/" class="nav-item" style="font-size: 20px;">
+              <span class="logo">Jeff-Cho</span>'s Blog
+            </a>
+         </div>
+        <div class="nav-center is-hidden position-relative" id="search_container">
+            <div class="nav-item full-width full-height">
+                <i class="fa fa-search has-padding" aria-hidden="true"></i>
+                <input type="text" id="search_input" class="search-input full-height full-width" placeholder="Search post" autofocus>
+                <i id="close_search" class="fa fa-times" aria-hidden="true"></i>
+            </div>
+            <div id="search_result"></div>
+        </div>
+        <div class="nav-right nav-menu">
+            <a class="nav-item" id="search">
+                <i class="fa fa-search" aria-hidden="true"></i>
+            </a>
+            
+            <a class="nav-item" href="/">
+                首页
+            </a>
+            
+            <a class="nav-item" href="/archive">
+                归档
+            </a>
+            
+            <a class="nav-item" href="/about">
+                关于
+            </a>
+            
+        </div>
+        <span class="nav-toggle" id="navMenuDropdown">
+            <span></span>
+            <span></span>
+            <span></span>
+        </span>
+        <div class="navbar-menu position-absolute full-width content-box is-hidden-desktop is-flex flex-column center" style="top: 100%;">
+            
+            <a class="nav-item flex-1" href="/">
+                首页
+            </a>
+            
+            <a class="nav-item flex-1" href="/archive">
+                归档
+            </a>
+            
+            <a class="nav-item flex-1" href="/about">
+                关于
+            </a>
+            
+        </div>
+    </nav>
+  </div>
+</header>
+
+  <div id="main-wrap" class="position-relative" style="margin-top: 55px;">
+      <div class="main-inner-content">
+          <!--博文页面-->
+
+<style>
+    .header-box {
+        height: 370px;
+        filter: blur(10px);
+        background-size: cover;
+        background-color: lightsteelblue;
+    }
+
+    .post-box {
+        padding: 15px;
+        padding-top: 60px;
+        min-height: 80vh;
+        margin-top: -200px;
+        border-radius: 4px;
+        background-color: rgba(255,255,255,.8);
+    }
+
+    .post-avatar {
+        height: 30px;
+        width: 30px;
+        border-radius: 50%;
+    }
+
+    .flow-chart {
+        text-align: center;
+    }
+
+    img[alt="post-cover"] {
+        display: none;
+    }
+</style>
+<header>
+    <div id="header_box" class="header-box"></div>
+</header>
+<section>
+    <div class="container post-box">
+        <div class="content post-title is-flex center flex-column" style="margin-bottom: 70px; overflow: auto;">
+            <h1 class="has-text-centered" style="padding-bottom: 10px; border-bottom: 3px solid #fff">
+                <strong>『在多个VMware虚拟机间设置共享RDM虚拟磁盘』</strong>
+            </h1>
+            
+            <div class="is-flex align-center">
+                <img class="post-avatar" src="https://cdn2.iconfinder.com/data/icons/rcons-user/32/male-shadow-circle-512.png">
+                <span style="padding:0 10px;"> <span class="sub-title">By</span> Jeff-Cho</span>
+                <span class="post-date sub-title">at: 06-11-2018</span>
+            </div>
+            
+                <div>
+                    
+                         <a class="tag is-post-tag" href="/tags/共享RDM/">共享RDM</a>
+                    
+                         <a class="tag is-post-tag" href="/tags/VMware/">VMware</a>
+                    
+                </div>
+            
+        </div>
+        <div class="content" style="overflow: auto">
+            <h2 id="一、使用场景"><a href="#一、使用场景" class="headerlink" title="一、使用场景"></a>一、使用场景</h2><p>　　VMware可以通过RDM（裸设备映射）的方式让虚拟机之间访问物理存储。通过裸设备映射，VMware虚拟机可以使用大型存储设备，如磁盘阵列。访问RDM磁盘上的数据比访问完全虚拟化的vmdk磁盘要快。RDM磁盘可以从本地挂接到ESXi server，也可以在光纤通道SAN上配置。<br>　　对于使用NetBackup的环境，这里有两点须知：（摘录自VERITAS SUPPORT）</p>
+<ul>
+<li>NetBackup支持在虚拟机上配置RDM的磁盘阵列。</li>
+<li>NetBackup无法通过VMware备份主机的方式备份RDM。<br>　　当多个虚拟机需要访问同一虚拟磁盘的时候，使用RDM来设置共享存储介质是一个比较好的解决方案。比如：跨虚拟机的客户集群的搭建。将物理存储的一个或者多个lun同时映射给多台虚拟机，已达到高存取效率的共享存储介质的实现。<h2 id="二、设置方法"><a href="#二、设置方法" class="headerlink" title="二、设置方法"></a>二、设置方法</h2>　　首先为虚拟机对应的ESXi分配对应所需的物理lun。<br>　　1.在虚拟机关机的状态下，为虚拟机添加设备–磁盘。并且，选择裸机映射。（如果物理lun没有划分给对应的ESXi，这时裸机映射的选项会灰显，无法选择。）<br>　　2.选择事先分配好的lun进入下一步。<br>　　3.选择与虚拟机存储同一目录进入下一步。<br>　　4.选择虚拟设备节点为通道为1的SCSI节点。如：SCSI（1:0）即通道为1，ID为0的SCSI节点。同时模式选择独立永久。（保证snapshot正常工作，关于磁盘模式的具体知识点可自查VMware KB）<br>　　5.由于上一步选择的SCSI节点的通道为1，在确定之后硬件列表会同时生成一个新的SCSI控制器，将它的SCSI总线共享模式设置成物理。<br>　　1~5步设置完成第一个节点的RDM共享磁盘的设置。<br>　　6.在上一节点的虚拟机设置中找到RDM磁盘对应的VMDK文件的路径并复制。　　<br>　　7.选择下一节点的虚拟机，为该虚拟机添加设备–磁盘。并且选择使用现有虚拟磁盘。<br>　　8.将6中复制的VMDK文件路径复制进虚拟磁盘文件的选择框中。<br>　　9.虚拟设备节点选择与上一节点相同的SCSI节点，模式同样选择独立永久模式。<br>　　10.确定后，硬件列表会同时生成一个新的SCSI控制器，将它的SCSI总线共享模式设置成物理。<br>　　6~10设置完成第二个节点的RDM共享磁盘的设置。如有更多虚机节点需要设置，步骤都和第二个节点相同，如法炮制即可。<h2 id="三、两个失效的feature"><a href="#三、两个失效的feature" class="headerlink" title="三、两个失效的feature"></a>三、两个失效的feature</h2>　　需要注意的是，由于虚拟机节点绑定了物理存储设备，所以storage vMotion特性对于该虚拟机是失效的；同样的，由于生成的新的SCSI控制器同样绑定使用了宿主机的SCSI控制器，所以对象为计算资源的vMotion特性同样也无法使用。</li>
+</ul>
+<p>　　<center>如有不严谨的地方，欢迎指出。</center></p>
+
+        </div>
+        <div class="post-reply">
+            
+                <!-- 来必力City版安装代码 -->
+                <div id="lv-container" data-id="city" data-uid="MTAyMC8yOTE4Ni81NzUz">
+                    <script type="text/javascript">
+                        (function(d, s) {
+                            var j, e = d.getElementsByTagName(s)[0];
+
+                            if (typeof LivereTower === 'function') { return; }
+
+                            j = d.createElement(s);
+                            j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+                            j.async = true;
+
+                            e.parentNode.insertBefore(j, e);
+                        })(document, 'script');
+                    </script>
+                    <noscript> 为正常使用来必力评论功能请激活JavaScript</noscript>
+                </div>
+                <!-- City版安装代码已完成 -->
+            
+            
+        </div>
+    </div>
+</section>
+<script>
+    // 获取第一张图, 用以当封面背景图
+    var img = document.querySelectorAll('img')[1]
+
+    if (img) {
+        var header_box = document.querySelector('#header_box')
+        header_box.style.backgroundImage = 'url('+ img.src +')'
+    }
+</script>
+      </div>
+  </div>
+  <style>
+  #footer {
+    min-height: 10vh;
+    background: black;
+    color: red;
+  }
+
+  #footer a {
+    color: #e1e1e1;
+  }
+</style>
+<footer id="footer" class="has-text-centered is-flex center">
+  <div class="container has-padding">
+    <div>
+      <div>
+        Copyright © 2018 Jeff-Cho's Blog All Rights Reserved.
+        <br>
+        <!--请您保留作者署名, 主题制作来之不易-->
+        Theme by <a href="http://haojen.github.io/">Haojen Ma</a>
+        <br>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="/js/search_core.js"></script>
+<script src="/js/script.js"></script>
+
+</body>
+</html>

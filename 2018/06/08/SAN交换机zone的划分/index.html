@@ -16,7 +16,7 @@
 <meta property="og:site_name" content="Jeff-Cho&#39;s Blog">
 <meta property="og:description" content="一、什么是SAN交换机zone以及为什么要给SAN交换机划zone？&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;超融合领域的发展已经较为成熟，共享存储的方案在数据中心的实施建设中也必然会采用，以实现提高管理效率以及降低实施以及运维成本。共享存储将存储从服务器中独立出来，再辅以合适的存储策略，可以实现数据的灾备，提高存储系统的可靠性、灵活性以及易管理性。由于将所有计算节点">
 <meta property="og:locale" content="chinese">
-<meta property="og:updated_time" content="2018-06-08T07:28:55.999Z">
+<meta property="og:updated_time" content="2018-06-11T06:39:03.480Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="『SAN交换机zone的划分』">
 <meta name="twitter:description" content="一、什么是SAN交换机zone以及为什么要给SAN交换机划zone？&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;超融合领域的发展已经较为成熟，共享存储的方案在数据中心的实施建设中也必然会采用，以实现提高管理效率以及降低实施以及运维成本。共享存储将存储从服务器中独立出来，再辅以合适的存储策略，可以实现数据的灾备，提高存储系统的可靠性、灵活性以及易管理性。由于将所有计算节点">
@@ -175,8 +175,8 @@
 </ul>
 <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;由于WWN号冗长难记，所以使用WWN配置起来会很麻烦，而且当更换主机或者存储的HBA卡的时候，zone也要重新配置。所以通过采用基于SAN交换机端口的方式划分zone，只要连接到SAN交换机的端口不变，zone配置将永久有效。本文将详细讲解下CLI配置SAN交换机基于Port划分zone。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;在配置之前，需要先规划好SAN交换机的哪些端口要连接主机HBA卡，哪些端口要连接存储控制器。一个zone的成员之间可以互访，但是不同zone之间数据隔离。<br>1.创建zone<br>命令格式：<code>zonecreate &quot;zone_name&quot;,&quot;domain_id,port&quot;;&quot;domain_id,port&quot;...</code><br>示例：目前有一台SAN交换机的0、1、2、3口依次连接到两台服务器的四块HBA卡，SAN交换机的5和6口连接到共享存储的两个控制器。需求是将两台服务器分别和存储的两个控制器划zone，实现数据隔离的同时实现冗余架构。<br><code>zonecreate &quot;zone_1&quot;,&quot;1,0&quot;;&quot;1,1&quot;;&quot;1,4&quot;;&quot;1,5&quot;;</code><br><code>zonecreate &quot;zone_2&quot;,&quot;1,2&quot;;&quot;1,3&quot;;&quot;1,4&quot;;&quot;1,5&quot;;</code><br><strong>补充：</strong><br>SAN交换机的domian_id默认是1，在级联之前，另外一台SAN交换机需要改成其他值。<br>交换机级联成功，端口状态会变成E-Port，主交换机会标有”UPstream”，从交换机会标有”downstream”。<br>向已有的zone中添加成员：<code>zoneadd &quot;zone_name&quot;,&quot;domain_id,port&quot;;</code><br>一个端口可以从属于多个zone。<br>建议每个zone中只配置一台主机，以防止不同的主机争夺磁盘的控制权<br>2.创建zoneconfig<br>命令格式：<code>cfgcreate &quot;zoneconfig_name&quot;,&quot;zone_name;zone_name...&quot;</code><br>示例：接着上例。<br><code>cfgcreate &quot;zoneconfig&quot;,&quot;zone_1;zone_2&quot;</code><br><strong>补充：</strong><br>往已有的zoneconfig中添加成员：<code>cfgadd &quot;zoneconfig_name&quot;,&quot;zone_name;zone_name...&quot;</code><br>3.保存并激活配置<br>命令格式：<code>cfgsave（会提示是否保存，输入&quot;y&quot;保存）</code><br>　　　　　<code>cfgenable &quot;zoneconfig_name&quot;</code><br>示例：接着上例。<br><code>cfgsave（输入&quot;y&quot;）</code><br><code>cfgenable &quot;zoneconfig&quot;</code><br><strong>补充：</strong><br>每台SAN交换机只能有一个cfg文件处于激活状态。</p>
 <h2 id="三、SAN交换机命令扩展"><a href="#三、SAN交换机命令扩展" class="headerlink" title="三、SAN交换机命令扩展"></a>三、SAN交换机命令扩展</h2><p>查看配置：<code>cfgshow或者zoneshow</code><br>查看管理IP地址（默认10.77.77.77）：<code>Ipaddrshow</code><br>查看OS版本：<code>version</code><br>查看授权：<code>licenseshow</code><br>添加授权：<code>licenseadd license_number</code><br>修改密码：<code>passwd</code><br>查看交换机状态：<code>switchshow</code></p>
-<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://blog.csdn.net/haiross/article/details/38561237" target="_blank" rel="noopener">https://blog.csdn.net/haiross/article/details/38561237</a><br><a href="https://blog.csdn.net/hzhvv/article/details51735257" target="_blank" rel="noopener">https://blog.csdn.net/hzhvv/article/details51735257</a><br>如有不严谨的地方，欢迎指出。</p>
-
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://blog.csdn.net/haiross/article/details/38561237" target="_blank" rel="noopener">https://blog.csdn.net/haiross/article/details/38561237</a><br><a href="https://blog.csdn.net/hzhvv/article/details51735257" target="_blank" rel="noopener">https://blog.csdn.net/hzhvv/article/details51735257</a></p>
+<center>如有不严谨的地方，欢迎指出。</center>
         </div>
         <div class="post-reply">
             
