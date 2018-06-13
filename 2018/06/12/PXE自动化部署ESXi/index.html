@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html class="full-height">
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="//cdn.bootcss.com/bulma/0.4.1/css/bulma.min.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  <script src="//cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+  
+  <title>『PXE自动化部署ESXi』 | Jeff-Cho</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="一、PXE的概念　　PXE，Preboot eXecute Environment，预启动执行环境。它是一个标准的C/S环境，用于在支持PXE的客户端上启动从网络检索的软件程序集。在客户端，它只需要支持PXE的网络接口控制器（NIC），并使用一小组工业标准网络协议。如DHCP和TFTP。PXE起源自BOOTP/DHCP/TFTP等协议的早期版本，在现代的数据中心中，PXE是用于操作系统引导，安装和">
+<meta name="keywords" content="PXE自动化部署,ESXi">
+<meta property="og:type" content="article">
+<meta property="og:title" content="『PXE自动化部署ESXi』">
+<meta property="og:url" content="http://yoursite.com/2018/06/12/PXE自动化部署ESXi/index.html">
+<meta property="og:site_name" content="Jeff-Cho">
+<meta property="og:description" content="一、PXE的概念　　PXE，Preboot eXecute Environment，预启动执行环境。它是一个标准的C/S环境，用于在支持PXE的客户端上启动从网络检索的软件程序集。在客户端，它只需要支持PXE的网络接口控制器（NIC），并使用一小组工业标准网络协议。如DHCP和TFTP。PXE起源自BOOTP/DHCP/TFTP等协议的早期版本，在现代的数据中心中，PXE是用于操作系统引导，安装和">
+<meta property="og:locale" content="chinese">
+<meta property="og:image" content="http://yoursite.com/image/PXE自动化部署ESXi1.png">
+<meta property="og:image" content="http://yoursite.com/image/PXE自动化部署ESXi2.png">
+<meta property="og:updated_time" content="2018-06-13T03:17:57.479Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="『PXE自动化部署ESXi』">
+<meta name="twitter:description" content="一、PXE的概念　　PXE，Preboot eXecute Environment，预启动执行环境。它是一个标准的C/S环境，用于在支持PXE的客户端上启动从网络检索的软件程序集。在客户端，它只需要支持PXE的网络接口控制器（NIC），并使用一小组工业标准网络协议。如DHCP和TFTP。PXE起源自BOOTP/DHCP/TFTP等协议的早期版本，在现代的数据中心中，PXE是用于操作系统引导，安装和">
+<meta name="twitter:image" content="http://yoursite.com/image/PXE自动化部署ESXi1.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Jeff-Cho" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/common.css">
+<link rel="stylesheet" href="/css/nav.css">
+<link rel="stylesheet" href="/css/layout.css">
+  
+
+</head>
+
+<body>
+  <header id="navbar" class="overflow-hidden">
+  <div class="container">
+    <nav class="nav">
+         <div class="nav-left">
+            <a href="/" class="nav-item" style="font-size: 20px;">
+              <span class="logo">Jeff-Cho</span>'s Blog
+            </a>
+         </div>
+        <div class="nav-center is-hidden position-relative" id="search_container">
+            <div class="nav-item full-width full-height">
+                <i class="fa fa-search has-padding" aria-hidden="true"></i>
+                <input type="text" id="search_input" class="search-input full-height full-width" placeholder="Search post" autofocus>
+                <i id="close_search" class="fa fa-times" aria-hidden="true"></i>
+            </div>
+            <div id="search_result"></div>
+        </div>
+        <div class="nav-right nav-menu">
+            <a class="nav-item" id="search">
+                <i class="fa fa-search" aria-hidden="true"></i>
+            </a>
+            
+            <a class="nav-item" href="/">
+                首页
+            </a>
+            
+            <a class="nav-item" href="/archive">
+                归档
+            </a>
+            
+            <a class="nav-item" href="/about">
+                关于
+            </a>
+            
+        </div>
+        <span class="nav-toggle" id="navMenuDropdown">
+            <span></span>
+            <span></span>
+            <span></span>
+        </span>
+        <div class="navbar-menu position-absolute full-width content-box is-hidden-desktop is-flex flex-column center" style="top: 100%;">
+            
+            <a class="nav-item flex-1" href="/">
+                首页
+            </a>
+            
+            <a class="nav-item flex-1" href="/archive">
+                归档
+            </a>
+            
+            <a class="nav-item flex-1" href="/about">
+                关于
+            </a>
+            
+        </div>
+    </nav>
+  </div>
+</header>
+
+  <div id="main-wrap" class="position-relative" style="margin-top: 55px;">
+      <div class="main-inner-content">
+          <!--博文页面-->
+
+<style>
+    .header-box {
+        height: 370px;
+        filter: blur(10px);
+        background-size: cover;
+        background-color: lightsteelblue;
+    }
+
+    .post-box {
+        padding: 15px;
+        padding-top: 60px;
+        min-height: 80vh;
+        margin-top: -200px;
+        border-radius: 4px;
+        background-color: rgba(255,255,255,.8);
+    }
+
+    .post-avatar {
+        height: 30px;
+        width: 30px;
+        border-radius: 50%;
+    }
+
+    .flow-chart {
+        text-align: center;
+    }
+
+    img[alt="post-cover"] {
+        display: none;
+    }
+</style>
+<header>
+    <div id="header_box" class="header-box"></div>
+</header>
+<section>
+    <div class="container post-box">
+        <div class="content post-title is-flex center flex-column" style="margin-bottom: 70px; overflow: auto;">
+            <h1 class="has-text-centered" style="padding-bottom: 10px; border-bottom: 3px solid #fff">
+                <strong>『PXE自动化部署ESXi』</strong>
+            </h1>
+            
+            <div class="is-flex align-center">
+                <img class="post-avatar" src="https://cdn2.iconfinder.com/data/icons/rcons-user/32/male-shadow-circle-512.png">
+                <span style="padding:0 10px;"> <span class="sub-title">By</span> Jeff-Cho</span>
+                <span class="post-date sub-title">at: 06-12-2018</span>
+            </div>
+            
+                <div>
+                    
+                         <a class="tag is-post-tag" href="/tags/PXE自动化部署/">PXE自动化部署</a>
+                    
+                         <a class="tag is-post-tag" href="/tags/ESXi/">ESXi</a>
+                    
+                </div>
+            
+        </div>
+        <div class="content" style="overflow: auto">
+            <h2 id="一、PXE的概念"><a href="#一、PXE的概念" class="headerlink" title="一、PXE的概念"></a>一、PXE的概念</h2><p>　　PXE，Preboot eXecute Environment，预启动执行环境。它是一个标准的C/S环境，用于在支持PXE的客户端上启动从网络检索的软件程序集。在客户端，它只需要支持PXE的网络接口控制器（NIC），并使用一小组工业标准网络协议。如DHCP和TFTP。PXE起源自BOOTP/DHCP/TFTP等协议的早期版本，在现代的数据中心中，PXE是用于操作系统引导，安装和部署的最常见的选择。<br>　　启动时，终端要求服务器分配IP地址，在通过TFTP或者MTFTP协议下载一个启动软件包到本机内存中执行，由这个启动软件包完成终端（client）基本软件设置，从而引导预先安装在服务器中的终端操作系统。它是类似无盘站的一个概念。</p>
+<p><center><img src="/image/PXE自动化部署ESXi1.png" alt=""></center><br>　　在建设云数据中心时，项目要求服务器数量大，交付时间短，使用传统的USB或者CD的方式一台一台为服务器提供安装介质，然后手动安装，这显然是效率低下的，难以短期内交付项目。PXE自动化部署就可以很好地解决这个问题。PXE使用DHCP和TFTP通过网络引导操作系统：<br>　　1.用户开机引导目标服务器（即PXE客户端）。<br>　　2.目标服务器生成DHCP请求。<br>　　3.DHCP服务器以TFTP服务器的IP信息和位置作为响应。<br>　　4.目标服务器联系TFTP服务器，并请求DHCP服务器指定的文件。<br>　　5.TFTP服务器发送网络引导加载程序，然后目标服务器执行该程序。初始引导加载程序可能从TFTP加载更多引导加载程序组件。<br>　　6.引导加载程序在TFTP服务器上搜索配置文件，从HTTP服务器或者TFTP服务器下载ESXi安装介质和其他ESXi组件，并在目标服务器上引导介质。<br>　　7.安装程序以交互方式或者kickstart脚本运行，完成安装程序。</p>
+<p><center><img src="/image/PXE自动化部署ESXi2.png" alt=""></center></p>
+<h2 id="二、实现过程"><a href="#二、实现过程" class="headerlink" title="二、实现过程"></a>二、实现过程</h2><p>　　1.PXE服务器端的实现<br>　　PXE服务器端可以用在workstation中搭建的虚拟机。服务器端的OS可以是Linux也可以是windows（本文中使用Linux），将DHCP、TFTP和HTTP都复用在一台服务器上即可。<br>　　安装DHCP服务：<br><blockquote><p>$ yum install dhcp</p>
+</blockquote><br>　　修改DHCP服务器配置文件：<br><blockquote><p>#dhcpd.conf</p>
+<p>#Sample configuration file for ISC dhcpd</p>
+<p>#option definitions common to all supportednetworks..<br>default-lease-time 600;<br>max-lease-time 7200;</p>
+<p>#Use this to enble / disable dynamic dns updatesglobally.<br>ddns-update-style none;<br>allow booting;<br>allow bootp;<br>class “pxeclients” {<br>match if substring(option vendor-class-identifier, 0,9) = “PXEClient”;<br>next-server 192.168.10.145;        //指定TFTP服务器地址，设置服务器从引导文件中安装。<br>filename = “pxelinux.0”;       //开始启动文件的名称，应用于无盘工作站。<br>}<br>subnet 192.168.10.0 netmask 255.255.255.0 {<br>range 192.168.10.100 192.168.10.250;<br>}</p>
+</blockquote><br>　　安装TFTP服务：<br><blockquote><p>$ yum install xinted<br>$ yum install tftp<br>$ yum install tftp-server</p>
+</blockquote><br>　　修改/etc/xinetd.d:<br><blockquote><p>tftp disable = no<br>server_args = -s/var/lib/tftpboot/</p>
+</blockquote><br>　　复制ESXi安装介质到tftpboot目录下的esxi目录下。</p>
+<p>　　安装syslinux:<br><blockquote><p>$ yum install syslinux</p>
+</blockquote><br>　　复制/usr/share/syslinux/目录下的pxelinux.0和menu.c32文件到/var/lib/tftpboot/下。</p>
+<p>　　创建PXE配置文件:<br><blockquote><p>$ mkdir /tftpboot/pxelinux.cfg</p>
+</blockquote><br>　　将/var/lib/tftpboot/esxi/isolinux.cfg复制到pxelinux.cfg目录下，名称可以为default:<br><blockquote><p>$ cp /var/lib/tftpboot/esxi/isolinux.cfg /var/lib/tftpboot/pxelinux.cfg/default</p>
+</blockquote><br>　　内容如下：<br><blockquote><p>DEFAULT menu.c32<br>MENU TITLE ESXi-5.5.0-20140302001-standard Boot Menu<br>NOHALT 1<br>PROMPT 0<br>TIMEOUT 80<br>LABEL install<br>  KERNEL /esxi/mboot.c32         //这里写绝对路径据说提示找不到对应文件，所以写了相对目录<br>  APPEND -c /esxi/boot.cfg       //esxi前面的斜杠不能少<br>  MENU LABELESXi-5.5.0-20140302001-standard ^Installer<br>LABEL hddboot<br>  LOCALBOOT 0x80<br>  MENU LABEL^Boot from local disk</p>
+</blockquote><br>　　修改/var/lib/tftpboot/esxi/boot.cfg:<br><blockquote><p>$ sed -e “s#/##g” -e “3s#^#prefix=/<code>basename $PWD</code>/\n#” -i.bak boot.cfg</p>
+</blockquote><br>　　修改前：<br><blockquote><p>bootstate=0<br>title=Loading ESXi installer<br>kernel=/tboot.b00<br>kernelopt=runweasel<br>modules=/b.b00 — /jumpstrt.gz — /useropts.gz —/k.b00 — /chardevs.b00 — /a.b00 — /user.b00 — /sb.v00 — /s.v00 —/ata_pata.v00 — /ata_pata.v01 — /ata_pata.v02 — /ata_pata.v03 — /ata_pata.v04— /ata_pata.v05 — /ata_pata.v06 — /ata_pata.v07 — /block_cc.v00 —/ehci_ehc.v00 — /elxnet.v00 — /weaselin.t00 — /esx_dvfi.v00 —/xlibs.v00 — /ima_qla4.v00 — /ipmi_ipm.v00 — /ipmi_ipm.v01 —/ipmi_ipm.v02 — /lpfc.v00 — /lsi_mr3.v00 — /lsi_msgp.v00 —/misc_cni.v00 — /misc_dri.v00 — /mtip32xx.v00 — /net_be2n.v00 —/net_bnx2.v00 — /net_bnx2.v01 — /net_cnic.v00 — /net_e100.v00 —/net_e100.v01 — /net_enic.v00 — /net_forc.v00 — /net_igb.v00 — /net_ixgb.v00— /net_mlx4.v00 — /net_mlx4.v01 — /net_nx_n.v00 — /net_tg3.v00 —/net_vmxn.v00 — /ohci_usb.v00 — /qlnative.v00 — /rste.v00 —/sata_ahc.v00 — /sata_ata.v00 — /sata_sat.v00 — /sata_sat.v01 —/sata_sat.v02 — /sata_sat.v03 — /sata_sat.v04 — /scsi_aac.v00 —/scsi_adp.v00 — /scsi_aic.v00 — /scsi_bnx.v00 — /scsi_bnx.v01 —/scsi_fni.v00 — /scsi_hps.v00 — /scsi_ips.v00 — /scsi_lpf.v00 —/scsi_meg.v00 — /scsi_meg.v01 — /scsi_meg.v02 — /scsi_mpt.v00 — /scsi_mpt.v01— /scsi_mpt.v02 — /scsi_qla.v00 — /scsi_qla.v01 — /uhci_usb.v00 —/tools.t00 — /xorg.v00 — /imgdb.tgz — /imgpayld.tgz<br>build=<br>updated=0</p>
+</blockquote><br>　　修改后：<br><blockquote><p>bootstate=0<br>title=Loading ESXi installer<br>prefix=esxi/<br>kernel=tboot.b00</p>
+<p>#kernelopt=runweasel<br>kernelopt=ks=<a href="http://192.168.10.145/KS/ks.cfg" target="_blank" rel="noopener">http://192.168.10.145/KS/ks.cfg</a><br>modules=b.b00 — jumpstrt.gz — useropts.gz —k.b00 — chardevs.b00 — a.b00 — user.b00 — sb.v00 — s.v00 —ata_pata.v00 — ata_pata.v01 — ata_pata.v02 — ata_pata.v03 — ata_pata.v04— ata_pata.v05 — ata_pata.v06 — ata_pata.v07 — block_cc.v00 —ehci_ehc.v00 — elxnet.v00 — weaselin.t00 — esx_dvfi.v00 — xlibs.v00 —ima_qla4.v00 — ipmi_ipm.v00 — ipmi_ipm.v01 — ipmi_ipm.v02 — lpfc.v00— lsi_mr3.v00 — lsi_msgp.v00 — misc_cni.v00 — misc_dri.v00 —mtip32xx.v00 — net_be2n.v00 — net_bnx2.v00 — net_bnx2.v01 —net_cnic.v00 — net_e100.v00 — net_e100.v01 — net_enic.v00 —net_forc.v00 — net_igb.v00 — net_ixgb.v00 — net_mlx4.v00 — net_mlx4.v01— net_nx_n.v00 — net_tg3.v00 — net_vmxn.v00 — ohci_usb.v00 —qlnative.v00 — rste.v00 — sata_ahc.v00 — sata_ata.v00 — sata_sat.v00— sata_sat.v01 — sata_sat.v02 — sata_sat.v03 — sata_sat.v04 —scsi_aac.v00 — scsi_adp.v00 — scsi_aic.v00 — scsi_bnx.v00 —scsi_bnx.v01 — scsi_fni.v00 — scsi_hps.v00 — scsi_ips.v00 —scsi_lpf.v00 — scsi_meg.v00 — scsi_meg.v01 — scsi_meg.v02 —scsi_mpt.v00 — scsi_mpt.v01 — scsi_mpt.v02 — scsi_qla.v00 — scsi_qla.v01— uhci_usb.v00 — tools.t00 — xorg.v00 — imgdb.tgz — imgpayld.tgz<br>build=<br>updated=0</p>
+</blockquote><br>　　去掉/,添加prefix=esxi/指定modules下的文件的前缀。</p>
+<p>　　安装HTTP服务：<br><blockquote><p>$ yum install httpd</p>
+</blockquote><br>　　进入/var/www/httpd/目录下，创建KS目录，创建ks.cfg文件，内容如下：<br><blockquote><p>#Accept the VMware End User License Agreement<br>vmaccepteula</p>
+<p>#Set the root password for the DCUI and Tech SupportMode<br>rootpw wxk_123</p>
+<p>#Set the keyboard type<br>keyboard ‘United Kingdom’</p>
+<p>#Install on the first local disk available on machine<br>install –firstdisk –overwritevmfs</p>
+<p>#Configure a static IP Address on the first networkadapter<br>network –bootproto=dhcp –device=vmnic0</p>
+<p>#Reboot after installation complete<br>reboot</p>
+</blockquote><br>　　启动所有相关服务：<br><blockquote><p>$ service xinetd start<br>$ service dhcpd start<br>$ service httpd restart</p>
+</blockquote></p>
+<p>　　2.PXE客户端<br>　　启动目标服务器，并且在bios中设置启动项为从网络中启动，然后等待安装完成即可。</p>
+<p>　　3.附注<br>关于PXE 配置文件的文件名说明：<br>对于PXE 配置文件的文件名,请选择以下选项之一:</p>
+<ul>
+<li>01-mac_address_of_target_ESXi_host。例如,01-23-45-67-89-0a-bc</li>
+<li>以十六进制表示的目标ESXi 主机IP 地址。</li>
+<li>default <h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><a href="http://blog.51cto.com/wangxiaokang/1831467" target="_blank" rel="noopener">http://blog.51cto.com/wangxiaokang/1831467</a></li>
+</ul>
+
+        </div>
+        <div class="post-reply">
+            
+                <!-- 来必力City版安装代码 -->
+                <div id="lv-container" data-id="city" data-uid="MTAyMC8yOTE4Ni81NzUz">
+                    <script type="text/javascript">
+                        (function(d, s) {
+                            var j, e = d.getElementsByTagName(s)[0];
+
+                            if (typeof LivereTower === 'function') { return; }
+
+                            j = d.createElement(s);
+                            j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+                            j.async = true;
+
+                            e.parentNode.insertBefore(j, e);
+                        })(document, 'script');
+                    </script>
+                    <noscript> 为正常使用来必力评论功能请激活JavaScript</noscript>
+                </div>
+                <!-- City版安装代码已完成 -->
+            
+            
+        </div>
+    </div>
+</section>
+<script>
+    // 获取第一张图, 用以当封面背景图
+    var img = document.querySelectorAll('img')[1]
+
+    if (img) {
+        var header_box = document.querySelector('#header_box')
+        header_box.style.backgroundImage = 'url('+ img.src +')'
+    }
+</script>
+      </div>
+  </div>
+  <style>
+  #footer {
+    min-height: 10vh;
+    background: black;
+    color: red;
+  }
+
+  #footer a {
+    color: #e1e1e1;
+  }
+</style>
+<footer id="footer" class="has-text-centered is-flex center">
+  <div class="container has-padding">
+    <div>
+      <div>
+        Copyright © 2018 Jeff-Cho's Blog All Rights Reserved.
+        <br>
+        <!--请您保留作者署名, 主题制作来之不易-->
+        Theme by <a href="http://haojen.github.io/">Haojen Ma</a>
+        <br>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="/js/search_core.js"></script>
+<script src="/js/script.js"></script>
+
+</body>
+</html>
