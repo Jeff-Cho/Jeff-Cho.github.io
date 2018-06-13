@@ -16,13 +16,13 @@
 <meta property="og:site_name" content="Jeff-Cho">
 <meta property="og:description" content="一、PXE的概念　　PXE，Preboot eXecute Environment，预启动执行环境。它是一个标准的C/S环境，用于在支持PXE的客户端上启动从网络检索的软件程序集。在客户端，它只需要支持PXE的网络接口控制器（NIC），并使用一小组工业标准网络协议。如DHCP和TFTP。PXE起源自BOOTP/DHCP/TFTP等协议的早期版本，在现代的数据中心中，PXE是用于操作系统引导，安装和">
 <meta property="og:locale" content="chinese">
-<meta property="og:image" content="http://yoursite.com/image/PXE自动化部署ESXi1.png">
-<meta property="og:image" content="http://yoursite.com/image/PXE自动化部署ESXi2.png">
-<meta property="og:updated_time" content="2018-06-13T03:17:57.479Z">
+<meta property="og:image" content="http://yoursite.com/images/PXE自动化部署ESXi1.png">
+<meta property="og:image" content="http://yoursite.com/images/PXE自动化部署ESXi2.png">
+<meta property="og:updated_time" content="2018-06-13T03:19:06.792Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="『PXE自动化部署ESXi』">
 <meta name="twitter:description" content="一、PXE的概念　　PXE，Preboot eXecute Environment，预启动执行环境。它是一个标准的C/S环境，用于在支持PXE的客户端上启动从网络检索的软件程序集。在客户端，它只需要支持PXE的网络接口控制器（NIC），并使用一小组工业标准网络协议。如DHCP和TFTP。PXE起源自BOOTP/DHCP/TFTP等协议的早期版本，在现代的数据中心中，PXE是用于操作系统引导，安装和">
-<meta name="twitter:image" content="http://yoursite.com/image/PXE自动化部署ESXi1.png">
+<meta name="twitter:image" content="http://yoursite.com/images/PXE自动化部署ESXi1.png">
   
     <link rel="alternate" href="/atom.xml" title="Jeff-Cho" type="application/atom+xml">
   
@@ -144,7 +144,7 @@
             </h1>
             
             <div class="is-flex align-center">
-                <img class="post-avatar" src="https://cdn2.iconfinder.com/data/icons/rcons-user/32/male-shadow-circle-512.png">
+                <img class="post-avatar" src="/images/avatar.jpg">
                 <span style="padding:0 10px;"> <span class="sub-title">By</span> Jeff-Cho</span>
                 <span class="post-date sub-title">at: 06-12-2018</span>
             </div>
@@ -160,8 +160,8 @@
         </div>
         <div class="content" style="overflow: auto">
             <h2 id="一、PXE的概念"><a href="#一、PXE的概念" class="headerlink" title="一、PXE的概念"></a>一、PXE的概念</h2><p>　　PXE，Preboot eXecute Environment，预启动执行环境。它是一个标准的C/S环境，用于在支持PXE的客户端上启动从网络检索的软件程序集。在客户端，它只需要支持PXE的网络接口控制器（NIC），并使用一小组工业标准网络协议。如DHCP和TFTP。PXE起源自BOOTP/DHCP/TFTP等协议的早期版本，在现代的数据中心中，PXE是用于操作系统引导，安装和部署的最常见的选择。<br>　　启动时，终端要求服务器分配IP地址，在通过TFTP或者MTFTP协议下载一个启动软件包到本机内存中执行，由这个启动软件包完成终端（client）基本软件设置，从而引导预先安装在服务器中的终端操作系统。它是类似无盘站的一个概念。</p>
-<p><center><img src="/image/PXE自动化部署ESXi1.png" alt=""></center><br>　　在建设云数据中心时，项目要求服务器数量大，交付时间短，使用传统的USB或者CD的方式一台一台为服务器提供安装介质，然后手动安装，这显然是效率低下的，难以短期内交付项目。PXE自动化部署就可以很好地解决这个问题。PXE使用DHCP和TFTP通过网络引导操作系统：<br>　　1.用户开机引导目标服务器（即PXE客户端）。<br>　　2.目标服务器生成DHCP请求。<br>　　3.DHCP服务器以TFTP服务器的IP信息和位置作为响应。<br>　　4.目标服务器联系TFTP服务器，并请求DHCP服务器指定的文件。<br>　　5.TFTP服务器发送网络引导加载程序，然后目标服务器执行该程序。初始引导加载程序可能从TFTP加载更多引导加载程序组件。<br>　　6.引导加载程序在TFTP服务器上搜索配置文件，从HTTP服务器或者TFTP服务器下载ESXi安装介质和其他ESXi组件，并在目标服务器上引导介质。<br>　　7.安装程序以交互方式或者kickstart脚本运行，完成安装程序。</p>
-<p><center><img src="/image/PXE自动化部署ESXi2.png" alt=""></center></p>
+<p><center><img src="/images/PXE自动化部署ESXi1.png" alt=""></center><br>　　在建设云数据中心时，项目要求服务器数量大，交付时间短，使用传统的USB或者CD的方式一台一台为服务器提供安装介质，然后手动安装，这显然是效率低下的，难以短期内交付项目。PXE自动化部署就可以很好地解决这个问题。PXE使用DHCP和TFTP通过网络引导操作系统：<br>　　1.用户开机引导目标服务器（即PXE客户端）。<br>　　2.目标服务器生成DHCP请求。<br>　　3.DHCP服务器以TFTP服务器的IP信息和位置作为响应。<br>　　4.目标服务器联系TFTP服务器，并请求DHCP服务器指定的文件。<br>　　5.TFTP服务器发送网络引导加载程序，然后目标服务器执行该程序。初始引导加载程序可能从TFTP加载更多引导加载程序组件。<br>　　6.引导加载程序在TFTP服务器上搜索配置文件，从HTTP服务器或者TFTP服务器下载ESXi安装介质和其他ESXi组件，并在目标服务器上引导介质。<br>　　7.安装程序以交互方式或者kickstart脚本运行，完成安装程序。</p>
+<p><center><img src="/images/PXE自动化部署ESXi2.png" alt=""></center></p>
 <h2 id="二、实现过程"><a href="#二、实现过程" class="headerlink" title="二、实现过程"></a>二、实现过程</h2><p>　　1.PXE服务器端的实现<br>　　PXE服务器端可以用在workstation中搭建的虚拟机。服务器端的OS可以是Linux也可以是windows（本文中使用Linux），将DHCP、TFTP和HTTP都复用在一台服务器上即可。<br>　　安装DHCP服务：<br><blockquote><p>$ yum install dhcp</p>
 </blockquote><br>　　修改DHCP服务器配置文件：<br><blockquote><p>#dhcpd.conf</p>
 <p>#Sample configuration file for ISC dhcpd</p>
