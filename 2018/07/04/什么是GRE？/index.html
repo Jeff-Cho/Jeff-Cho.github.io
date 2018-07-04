@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html class="full-height">
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="//cdn.bootcss.com/bulma/0.4.1/css/bulma.min.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  <script src="//cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+  
+  <title>『什么是GRE？』 | Jeff-Cho</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="之所以写篇文章，是因为在整理路由交换学习笔记的时候，老师有提过一个思考题。我觉得这个思考题可以帮助更好地理解GRE，所以想着记录一下。　　闲话不多说，我们首先来看看是什么思考题： 　　如图的拓扑，在配置好三台路由器上的地址之后，如何在不修改R2的配置的前提下，只在R1和R3上添加配置，实现R1和R3的loopback口之间的通信？　　结合文章的题目自然可以猜到是使用GRE了，那到底什么是GRE">
+<meta name="keywords" content="GRE">
+<meta property="og:type" content="article">
+<meta property="og:title" content="『什么是GRE？』">
+<meta property="og:url" content="http://yoursite.com/2018/07/04/什么是GRE？/index.html">
+<meta property="og:site_name" content="Jeff-Cho">
+<meta property="og:description" content="之所以写篇文章，是因为在整理路由交换学习笔记的时候，老师有提过一个思考题。我觉得这个思考题可以帮助更好地理解GRE，所以想着记录一下。　　闲话不多说，我们首先来看看是什么思考题： 　　如图的拓扑，在配置好三台路由器上的地址之后，如何在不修改R2的配置的前提下，只在R1和R3上添加配置，实现R1和R3的loopback口之间的通信？　　结合文章的题目自然可以猜到是使用GRE了，那到底什么是GRE">
+<meta property="og:locale" content="chinese">
+<meta property="og:image" content="http://yoursite.com/images/什么是GRE？1.png">
+<meta property="og:updated_time" content="2018-07-04T02:38:16.818Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="『什么是GRE？』">
+<meta name="twitter:description" content="之所以写篇文章，是因为在整理路由交换学习笔记的时候，老师有提过一个思考题。我觉得这个思考题可以帮助更好地理解GRE，所以想着记录一下。　　闲话不多说，我们首先来看看是什么思考题： 　　如图的拓扑，在配置好三台路由器上的地址之后，如何在不修改R2的配置的前提下，只在R1和R3上添加配置，实现R1和R3的loopback口之间的通信？　　结合文章的题目自然可以猜到是使用GRE了，那到底什么是GRE">
+<meta name="twitter:image" content="http://yoursite.com/images/什么是GRE？1.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Jeff-Cho" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/common.css">
+<link rel="stylesheet" href="/css/nav.css">
+<link rel="stylesheet" href="/css/layout.css">
+  
+
+</head>
+
+<body>
+  <header id="navbar" class="overflow-hidden">
+  <div class="container">
+    <nav class="nav">
+         <div class="nav-left">
+            <a href="/" class="nav-item" style="font-size: 20px;">
+              <span class="logo">Jeff-Cho</span>'s Blog
+            </a>
+         </div>
+        <div class="nav-center is-hidden position-relative" id="search_container">
+            <div class="nav-item full-width full-height">
+                <i class="fa fa-search has-padding" aria-hidden="true"></i>
+                <input type="text" id="search_input" class="search-input full-height full-width" placeholder="Search post" autofocus>
+                <i id="close_search" class="fa fa-times" aria-hidden="true"></i>
+            </div>
+            <div id="search_result"></div>
+        </div>
+        <div class="nav-right nav-menu">
+            <a class="nav-item" id="search">
+                <i class="fa fa-search" aria-hidden="true"></i>
+            </a>
+            
+            <a class="nav-item" href="/">
+                首页
+            </a>
+            
+            <a class="nav-item" href="/archive">
+                归档
+            </a>
+            
+            <a class="nav-item" href="/about">
+                关于
+            </a>
+            
+        </div>
+        <span class="nav-toggle" id="navMenuDropdown">
+            <span></span>
+            <span></span>
+            <span></span>
+        </span>
+        <div class="navbar-menu position-absolute full-width content-box is-hidden-desktop is-flex flex-column center" style="top: 100%;">
+            
+            <a class="nav-item flex-1" href="/">
+                首页
+            </a>
+            
+            <a class="nav-item flex-1" href="/archive">
+                归档
+            </a>
+            
+            <a class="nav-item flex-1" href="/about">
+                关于
+            </a>
+            
+        </div>
+    </nav>
+  </div>
+</header>
+
+  <div id="main-wrap" class="position-relative" style="margin-top: 55px;">
+      <div class="main-inner-content">
+          <!--博文页面-->
+
+<style>
+    .header-box {
+        height: 370px;
+        filter: blur(10px);
+        background-size: cover;
+        background-color: lightsteelblue;
+    }
+
+    .post-box {
+        padding: 15px;
+        padding-top: 60px;
+        min-height: 80vh;
+        margin-top: -200px;
+        border-radius: 4px;
+        background-color: rgba(255,255,255,.8);
+    }
+
+    .post-avatar {
+        height: 30px;
+        width: 30px;
+        border-radius: 50%;
+    }
+
+    .flow-chart {
+        text-align: center;
+    }
+
+    img[alt="post-cover"] {
+        display: none;
+    }
+</style>
+<header>
+    <div id="header_box" class="header-box"></div>
+</header>
+<section>
+    <div class="container post-box">
+        <div class="content post-title is-flex center flex-column" style="margin-bottom: 70px; overflow: auto;">
+            <h1 class="has-text-centered" style="padding-bottom: 10px; border-bottom: 3px solid #fff">
+                <strong>『什么是GRE？』</strong>
+            </h1>
+            
+            <div class="is-flex align-center">
+                <img class="post-avatar" src="/images/avatar.jpg">
+                <span style="padding:0 10px;"> <span class="sub-title">By</span> Jeff-Cho</span>
+                <span class="post-date sub-title">at: 07-04-2018</span>
+            </div>
+            
+                <div>
+                    
+                         <a class="tag is-post-tag" href="/tags/GRE/">GRE</a>
+                    
+                </div>
+            
+        </div>
+        <div class="content" style="overflow: auto">
+            <p>　　之所以写篇文章，是因为在整理路由交换学习笔记的时候，老师有提过一个思考题。我觉得这个思考题可以帮助更好地理解GRE，所以想着记录一下。<br>　　闲话不多说，我们首先来看看是什么思考题：</p>
+<p><center><img src="/images/什么是GRE？1.png" alt=""></center><br>　　如图的拓扑，在配置好三台路由器上的地址之后，如何在不修改R2的配置的前提下，只在R1和R3上添加配置，实现R1和R3的loopback口之间的通信？<br>　　结合文章的题目自然可以猜到是使用GRE了，那到底什么是GRE，又怎么使用GRE来实现这一需求是本文将要说明的重点。</p>
+<h2 id="一、什么是GRE？"><a href="#一、什么是GRE？" class="headerlink" title="一、什么是GRE？"></a>一、什么是GRE？</h2><p>　　GRE（Generic Routing Encapsulation），即通用路由封装。可以对某些三层数据报进行二次封装，从而“改头换面”再在网络中传输。GRE采用了Tunnel（隧道）技术，是VPN（virtual private network）的第三层隧道协议。Tunnel是一个虚拟的点到点的连接，提供一条通路使封装的数据报文能够在这个通路上传输，并且在一个Tunnel的两端分别对数据报进行封装及解封装。<br>　　以上都是套话，如何解决需求才是王道。目前最大的问题是，R2是不认识R1和R3的loopback地址的。所以当R1以loopback地址为源pingR3的loopback口的时候，R2收到目的地址是loopback地址的报文的时候，只会有丢弃这一种结果。那么可不可以使用GRE对数据报进行二次封装使得R2能够识别数据包并且转发到对端呢？既然R2不认识loopback地址，那么在目的地址是loopback地址的数据报外面再封装一层目的地址是物理口的地址，这样R2就能识别并转发，再到R3上解封装掉GRE的二次封装，不就可以实现将数据报发送到R3的目的了吗？至于路由寻址，在R1和R3上各一条缺省路由即可解决，可以实现R2零配置。</p>
+<h2 id="二、如何实现？"><a href="#二、如何实现？" class="headerlink" title="二、如何实现？"></a>二、如何实现？</h2><p>　　1.缺省路由实现物理口之间的通信<br>　　如下配置建立在各个路由器的地址已配置完成的前提下。<br><blockquote><p>R1(config)# ip route 0.0.0.0 0.0.0.0 12.12.12.2</p>
+</blockquote><br><blockquote><p>R3(config)# ip route 0.0.0.0 0.0.0.0 23.23.23.2</p>
+</blockquote><br>　　2.配置Tunnel<br>　　配置Tunnel的source和destination的地址，用于GRE给数据报二次封装的源和目标地址。配置Tunnel口的地址。<br><blockquote><p>R1(config)# interface tunnel 0<br>R1(config-if)# tunnel source 12.12.12.1<br>R1(config-if)# tunnel destination 23.23.23.3<br>R1(config-if)# ip address 123.123.123.1 255.255.255.0</p>
+</blockquote><br><blockquote><p>R3(config)# interface tunnel 0<br>R3(config-if)# tunnel source 23.23.23.3<br>R3(config-if)# tunnel destination 12.12.12.1<br>R3(config-if)# ip address 123.123.123.3 255.255.255.0</p>
+</blockquote><br>　　3.写一条路由将loopback口指向对端Tunnel口<br><blockquote><p>R1(config)# ip route 30.0.0.1 255.255.255.0 123.123.123.3</p>
+</blockquote><br><blockquote><p>R3(config)# ip route 10.0.0.1 255.255.255.0 123.123.123.1</p>
+</blockquote><br>　　4.此时R1和R3的路由表<br><blockquote><p>R1# show ip route<br>Codes: L - local, C - connected, S - static, R - RIP, M - mobile, B - BGP<br>       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area<br>       N1 - OSPF NSSA external type 1, N2 - OSPF NSSA external type 2<br>       E1 - OSPF external type 1, E2 - OSPF external type 2<br>       i - IS-IS, su - IS-IS summary, L1 - IS-IS level-1, L2 - IS-IS level-2<br>       ia - IS-IS inter area, * - candidate default, U - per-user static route<br>       o - ODR, P - periodic downloaded static route, H - NHRP, l - LISP</p>
+<pre><code>+ - replicated route, % - next hop override
+</code></pre><p>Gateway of last resort is 12.12.12.2 to network 0.0.0.0</p>
+<p>S*    0.0.0.0/0 [1/0] via 12.12.12.2<br>      10.0.0.0/8 is variably subnetted, 2 subnets, 2 masks<br>C        10.0.0.0/24 is directly connected, Loopback0<br>L        10.0.0.1/32 is directly connected, Loopback0<br>      12.0.0.0/8 is variably subnetted, 2 subnets, 2 masks<br>C        12.12.12.0/24 is directly connected, FastEthernet0/0<br>L        12.12.12.1/32 is directly connected, FastEthernet0/0<br>      30.0.0.0/32 is subnetted, 1 subnets<br>S        30.0.0.1 [1/0] via 123.123.123.3<br>      123.0.0.0/8 is variably subnetted, 2 subnets, 2 masks<br>C        123.123.123.0/24 is directly connected, Tunnel0<br>L        123.123.123.1/32 is directly connected, Tunnel0</p>
+</blockquote><br><blockquote><p>R3# show ip route<br>Codes: L - local, C - connected, S - static, R - RIP, M - mobile, B - BGP<br>       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area<br>       N1 - OSPF NSSA external type 1, N2 - OSPF NSSA external type 2<br>       E1 - OSPF external type 1, E2 - OSPF external type 2<br>       i - IS-IS, su - IS-IS summary, L1 - IS-IS level-1, L2 - IS-IS level-2<br>       ia - IS-IS inter area, * - candidate default, U - per-user static route<br>       o - ODR, P - periodic downloaded static route, H - NHRP, l - LISP</p>
+<pre><code>+ - replicated route, % - next hop override
+</code></pre><p>Gateway of last resort is 23.23.23.2 to network 0.0.0.0</p>
+<p>S*    0.0.0.0/0 [1/0] via 23.23.23.2<br>      10.0.0.0/32 is subnetted, 1 subnets<br>S        10.0.0.1 [1/0] via 123.123.123.1<br>      23.0.0.0/8 is variably subnetted, 2 subnets, 2 masks<br>C        23.23.23.0/24 is directly connected, FastEthernet0/0<br>L        23.23.23.3/32 is directly connected, FastEthernet0/0<br>      30.0.0.0/8 is variably subnetted, 2 subnets, 2 masks<br>C        30.0.0.0/24 is directly connected, Loopback0<br>L        30.0.0.1/32 is directly connected, Loopback0<br>      123.0.0.0/8 is variably subnetted, 2 subnets, 2 masks<br>C        123.123.123.0/24 is directly connected, Tunnel0<br>L        123.123.123.3/32 is directly connected, Tunnel0</p>
+</blockquote><br>　　这时当R1以loopback10.0.0.1pingR3的loopback30.0.0.1的时候，会先封装好源IP是10.0.0.1，目标IP是30.0.0.1。查找路由表会找到下一跳是123.123.123.1。而123.123.123.0的网段是R1和R3通过Tunnel互联的网段，在路由表中也有相应的条目将123.123.123.0的网段指向Tunnel0口。所以接下来数据报会送到Tunnel口封装，封装上在Tunnel0设置好的源和目标IP，即二次封装上源IP12.12.12.1，目标IP23.23.23.3。大概数据报的结构是：<br><code>|sou：12.12.12.1 des：23.23.23.3|sou：10.0.0.1 des：30.0.0.1|数据|</code>。<br>　　然后查询路由表，匹配到缺省路由将数据包发送给下一跳R2的23.23.23.2，然后解封装发现目标地址是23.23.23.3，就转发给R3。R3解封装GRE头部发现目标地址是自己的23.23.23.3，然后继续解封装，发现真实目标地址是30.0.0.1，就将数据报转发给自己的loopback口。R3回包也是同样的原理。</p>
+<h2 id="三、思考一下"><a href="#三、思考一下" class="headerlink" title="三、思考一下"></a>三、思考一下</h2><p>　　上文我们讲过了概念、原理以及实现，给数据报封装上GRE报头然后通过Tunnel转发。其实这就是最简单的隧道技术的实现了。那发散一下，将R2扩大成ISP广域网，R1和R3扩大为两个公司的出口路由器，loopback则为公司的终端。那么问题就上升为“如何实现两个园区网跨越广域网通信？”了。如题干中设定一样，同样的ISP网络是不能由你变更配置的，它所能提供的就是两个公司的能互访的出口公网地址，就相当于我们写的两条缺省路由。只不过ISP是通过复杂的路由协议实现了同样的效果。总的来说，就是在ISP广域网不能识别的数据报的私网地址的外面再封装一层ISP广域网能够识别的公网地址，再通过ISP广域网的复杂路由转发到目的，再依次解封装，实现两个园区网跨广域网的通信。</p>
+
+        </div>
+        <div class="post-reply">
+            
+                <!-- 来必力City版安装代码 -->
+                <div id="lv-container" data-id="city" data-uid="MTAyMC8zNzI5Mi8xMzgyNg==">
+                    <script type="text/javascript">
+                        (function(d, s) {
+                            var j, e = d.getElementsByTagName(s)[0];
+
+                            if (typeof LivereTower === 'function') { return; }
+
+                            j = d.createElement(s);
+                            j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+                            j.async = true;
+
+                            e.parentNode.insertBefore(j, e);
+                        })(document, 'script');
+                    </script>
+                    <noscript> 为正常使用来必力评论功能请激活JavaScript</noscript>
+                </div>
+                <!-- City版安装代码已完成 -->
+            
+            
+        </div>
+    </div>
+</section>
+<script>
+    // 获取第一张图, 用以当封面背景图
+    var img = document.querySelectorAll('img')[1]
+
+    if (img) {
+        var header_box = document.querySelector('#header_box')
+        header_box.style.backgroundImage = 'url('+ img.src +')'
+    }
+</script>
+      </div>
+  </div>
+  <style>
+  #footer {
+    min-height: 10vh;
+    background: black;
+    color: red;
+  }
+
+  #footer a {
+    color: #e1e1e1;
+  }
+</style>
+<footer id="footer" class="has-text-centered is-flex center">
+  <div class="container has-padding">
+    <div>
+      <div>
+        Copyright © 2018 Jeff-Cho's Blog All Rights Reserved.
+        <br>
+        <!--请您保留作者署名, 主题制作来之不易-->
+        Theme by <a href="http://haojen.github.io/">Haojen Ma</a>
+        <br>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="/js/search_core.js"></script>
+<script src="/js/script.js"></script>
+
+</body>
+</html>
